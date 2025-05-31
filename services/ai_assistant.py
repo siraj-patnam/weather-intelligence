@@ -10,7 +10,10 @@ class WeatherAI:
     """Simple, intelligent weather assistant that lets AI do the thinking"""
     
     def __init__(self):
-        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+        try:
+            self.openai_api_key = st.secrets.get("OPENAI_API_KEY")
+        except:
+            self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.use_openai = self.openai_api_key is not None
         
         if self.use_openai:

@@ -13,9 +13,7 @@ from typing import Dict, Any, Optional, List
 
 load_dotenv()
 
-# Debug: Print to verify
-print(f"OpenWeather API Key: {os.getenv('OPENWEATHER_API_KEY')}")
-print(f"MongoDB URI: {os.getenv('MONGODB_URI')}")
+
 
 # Import services
 from services.weather_service import WeatherService

@@ -24,6 +24,10 @@ class WeatherService:
     """Service for OpenWeather API integration"""
     
     def __init__(self):
+        try:
+            self.openai_api_key = st.secrets.get("OPENAI_API_KEY")
+        except:
+            self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.api_key = os.getenv('OPENWEATHER_API_KEY')
         self.base_url = "https://api.openweathermap.org/data/2.5"
         

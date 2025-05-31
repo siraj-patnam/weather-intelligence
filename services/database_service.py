@@ -14,8 +14,13 @@ class DatabaseService:
     """MongoDB service for weather data persistence"""
     
     def __init__(self):
-        self.mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
-        self.database_name = os.getenv('DATABASE_NAME', 'weather_app')
+        try:
+            self.mongodb_uri = st.secrets["MONGODB_URI"]
+            self.database_name = st.secrets.get("DATABASE_NAME", "weather_app")
+        except:
+        
+            self.mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+            self.database_name = os.getenv('DATABASE_NAME', 'weather_app')
         self.client = None
         self.db = None
         self.collection_name = 'weather_records'

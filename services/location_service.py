@@ -10,7 +10,11 @@ class LocationService:
     """Service for location and geocoding operations"""
     
     def __init__(self):
-        self.google_api_key = os.getenv('GOOGLE_GEOCODING_API_KEY')
+        try:
+            self.google_api_key = st.secrets.get("GOOGLE_GEOCODING_API_KEY")
+        except:
+            # Fallback to environment variable if not in Streamlit secrets
+            self.google_api_key = os.getenv('GOOGLE_GEOCODING_API_KEY')
         self.nominatim = Nominatim(user_agent="weather_intelligence_hub")
         
         # Patterns for different location formats
