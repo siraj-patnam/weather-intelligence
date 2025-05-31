@@ -11,7 +11,7 @@ class LocationService:
     
     def __init__(self):
         try:
-            self.google_api_key = st.secrets.get("GOOGLE_GEOCODING_API_KEY")
+            self.google_api_key = st.secrets["GOOGLE_GEOCODING_API_KEY"]
         except:
             # Fallback to environment variable if not in Streamlit secrets
             self.google_api_key = os.getenv('GOOGLE_GEOCODING_API_KEY')

@@ -11,7 +11,7 @@ class WeatherAI:
     
     def __init__(self):
         try:
-            self.openai_api_key = st.secrets.get("OPENAI_API_KEY")
+            self.openai_api_key = st.secrets["OPENAI_API_KEY"]
         except:
             self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.use_openai = self.openai_api_key is not None

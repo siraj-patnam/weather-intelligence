@@ -16,7 +16,7 @@ class DatabaseService:
     def __init__(self):
         try:
             self.mongodb_uri = st.secrets["MONGODB_URI"]
-            self.database_name = st.secrets.get("DATABASE_NAME", "weather_app")
+            self.database_name = st.secrets["DATABASE_NAME"]
         except:
         
             self.mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
