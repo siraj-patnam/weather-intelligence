@@ -487,8 +487,8 @@ def save_weather_to_db_from_map(services, weather_data, location_data):
 def display_current_weather(weather_data, location_data):
     """Display current weather in a beautiful card format"""
     # Get location name
-    location_name = f"Location ({location_data['lat']:.4f}, {location_data['lng']:.4f})"
-    
+    # Fixed version:
+    location_name = location_data.get('display_name', 'Selected Location')
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col1:
