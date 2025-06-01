@@ -155,7 +155,7 @@ def main():
     with col2:
         st.markdown("""
         <div class="location-header">
-            <h1>🌍 Weather Intelligence Hub</h1>
+            <h1>Weather Intelligence Hub</h1>
             <p>Interactive Global Weather with AI Assistant</p>
         </div>
         """, unsafe_allow_html=True)
