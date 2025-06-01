@@ -224,6 +224,16 @@ def interactive_map_page(services):
     st.markdown("## 🌍 Interactive Global Weather Map")
     st.markdown("**Click anywhere on the map to get weather data for that location!**")
     
+    # Initialize session state variables
+    if 'map_center' not in st.session_state:
+        st.session_state.map_center = [40.7128, -74.0060]  # NYC default
+    
+    if 'map_zoom' not in st.session_state:
+        st.session_state.map_zoom = 5
+    
+    if 'first_click_processed' not in st.session_state:
+        st.session_state.first_click_processed = False
+    
     # Map controls
     col1, col2, col3 = st.columns([2, 1, 1])
     
@@ -238,13 +248,6 @@ def interactive_map_page(services):
     
     with col3:
         show_weather_overlay = st.checkbox("Weather Overlay", value=True)
-    
-    # Create base map
-    if 'map_center' not in st.session_state:
-        st.session_state.map_center = [40.7128, -74.0060]  # NYC default
-    
-    if 'map_zoom' not in st.session_state:
-        st.session_state.map_zoom = 5
     
     # Handle location search
     if location_input:
@@ -262,7 +265,6 @@ def interactive_map_page(services):
     
     # Add weather markers if overlay is enabled
     if show_weather_overlay:
-        # Add some major cities with weather data
         major_cities = [
             {"name": "New York", "lat": 40.7128, "lng": -74.0060},
             {"name": "London", "lat": 51.5074, "lng": -0.1278},
@@ -279,49 +281,54 @@ def interactive_map_page(services):
     # Display the map
     map_data = st_folium(m, width=700, height=500, returned_objects=["last_clicked"])
     
-    # Handle map clicks
-    if map_data['last_clicked'] is not None:
+    # Handle map clicks with better state management
+    if map_data and map_data.get('last_clicked') is not None:
         clicked_lat = map_data['last_clicked']['lat']
         clicked_lng = map_data['last_clicked']['lng']
         
-        st.markdown(f"### 📍 Weather for Clicked Location")
-        st.markdown(f"**Coordinates:** {clicked_lat:.4f}, {clicked_lng:.4f}")
+        # Check if this is a new click or the same click
+        current_click = f"{clicked_lat:.4f},{clicked_lng:.4f}"
+        last_click = st.session_state.get('last_map_click', '')
         
-        with st.spinner("🔄 Getting weather data for selected location..."):
-            # Get weather data for clicked location
-            weather_data = services['weather'].get_current_weather(clicked_lat, clicked_lng)
-            forecast_data = services['weather'].get_forecast(clicked_lat, clicked_lng)
+        if current_click != last_click:
+            # This is a new click, process it
+            st.session_state.last_map_click = current_click
             
-            if weather_data:
-                # FIX: Create location_data for the clicked location
-                clicked_location_data = {
-                    'lat': clicked_lat,
-                    'lng': clicked_lng,
-                    'display_name': f"Location ({clicked_lat:.4f}, {clicked_lng:.4f})"
-                }
+            st.markdown(f"### 📍 Weather for Clicked Location")
+            st.markdown(f"**Coordinates:** {clicked_lat:.4f}, {clicked_lng:.4f}")
+            
+            with st.spinner("🔄 Getting weather data for selected location..."):
+                # Get weather data for clicked location
+                weather_data = services['weather'].get_current_weather(clicked_lat, clicked_lng)
+                forecast_data = services['weather'].get_forecast(clicked_lat, clicked_lng)
                 
-                # Save to session state for AI
-                st.session_state.last_weather_data = weather_data
-                st.session_state.last_location_name = clicked_location_data['display_name']
-                
-                # Display current weather
-                display_current_weather(weather_data, {"lat": clicked_lat, "lng": clicked_lng})
-                
-                # Display forecast
-                if forecast_data:
-                    st.markdown("### 📅 5-Day Forecast")
-                    display_forecast_cards(forecast_data)
-                
-                # Save to database
-                save_weather_to_db(services, weather_data, clicked_lat, clicked_lng)
-                
-                # AI insights
-                with st.expander("🤖 AI Weather Insights"):
-                    ai_insights = services['ai'].get_weather_insights(weather_data, forecast_data)
-                    st.markdown(ai_insights)
-                
-            else:
-                st.error("❌ Could not retrieve weather data for this location")
+                if weather_data:
+                    # Create location data for the clicked location
+                    clicked_location_data = {
+                        'lat': clicked_lat,
+                        'lng': clicked_lng,
+                        'display_name': f"Location ({clicked_lat:.4f}, {clicked_lng:.4f})"
+                    }
+                    
+                    # Save to session state for AI
+                    st.session_state.last_weather_data = weather_data
+                    st.session_state.last_location_name = clicked_location_data['display_name']
+                    st.session_state.last_forecast_data = forecast_data
+                    
+                    # Display current weather
+                    display_current_weather(weather_data, clicked_location_data)
+                    
+                    # Display forecast
+                    if forecast_data:
+                        st.markdown("### 📅 5-Day Forecast")
+                        display_forecast_cards(forecast_data)
+                    
+                    # AI insights
+                    with st.expander("🤖 AI Weather Insights"):
+                        ai_insights = services['ai'].get_weather_insights(weather_data, forecast_data)
+                        st.markdown(ai_insights)
+                else:
+                    st.error("❌ Could not retrieve weather data for this location")
 
 def display_current_weather(weather_data, location_data):
     """Display current weather in a beautiful card format"""

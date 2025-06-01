@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class WeatherAI:
-    """Simple, intelligent weather assistant that lets AI do the thinking"""
     
     def __init__(self):
         try:
@@ -34,7 +33,7 @@ class WeatherAI:
     
     def get_response_with_weather_data(self, user_question: str, weather_data: Dict = None, 
                                      location_name: str = None, forecast_data: Dict = None) -> str:
-        """Get AI response with real weather data - let AI do the thinking"""
+        """Get AI response with real weather data """
         
         if self.use_openai:
             return self._get_smart_ai_response(user_question, weather_data, location_name, forecast_data)
