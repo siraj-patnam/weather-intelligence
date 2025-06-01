@@ -39,7 +39,7 @@ Streamlit • MongoDB • OpenWeather API • OpenAI • Google Maps • Plotly
 ## 🏗️ Quick Start (Optional)
 
 ```bash
-git clone [your-repo]
+git clone https://github.com/siraj-patnam/weather-intelligence.git
 pip install -r requirements.txt
 # Add API keys to .env file
 streamlit run app.py
