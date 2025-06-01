@@ -459,31 +459,6 @@ def display_weather_results(weather_data, forecast_data, location_data, services
             st.markdown(ai_insights)
         except Exception as e:
             st.info("AI insights temporarily unavailable.")
-    
-    # Quick actions
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        if st.button("💾 Save This Location", key="save_location"):
-            # Save weather data to database
-            success = save_weather_to_db_from_map(services, weather_data, location_data)
-            if success:
-                st.success("✅ Location saved!")
-            else:
-                st.error("❌ Failed to save")
-    
-    with col2:
-        if st.button("🤖 Ask AI About This Weather", key="ask_ai"):
-            st.info("💡 Go to the AI Assistant tab to ask questions about this weather!")
-    
-    with col3:
-        if st.button("🔄 Refresh Weather", key="refresh_weather"):
-            # Clear cached data to force refresh
-            if 'last_weather_data' in st.session_state:
-                del st.session_state.last_weather_data
-            if 'last_location_name' in st.session_state:
-                del st.session_state.last_location_name
-            st.rerun()
 
 def save_weather_to_db_from_map(services, weather_data, location_data):
     """Save weather data from map click to database"""
@@ -508,6 +483,7 @@ def save_weather_to_db_from_map(services, weather_data, location_data):
     except Exception as e:
         print(f"Error saving weather data: {e}")
         return False
+        
 def display_current_weather(weather_data, location_data):
     """Display current weather in a beautiful card format"""
     # Get location name
