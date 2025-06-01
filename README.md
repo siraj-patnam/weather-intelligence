@@ -6,6 +6,7 @@ An innovative weather app with **interactive global maps**, **AI-powered assista
 ## 🚀 Live Demo
 
 **[🔗 View Live App](https://weather-intelligence-rtxou5uhrrvoty43fexv44.streamlit.app/)**
+
 **https://weather-intelligence-a8dgmtlod6trr4tvaqvkus.streamlit.app/**
 
 *Fully functional with all features demonstrated.*
