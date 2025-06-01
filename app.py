@@ -32,118 +32,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
-# Force light mode
-st.markdown("""
-<style>
-    .stApp {
-        color-scheme: light !important;
-    }
-    
-    /* Force light mode colors */
-    .stApp > header {
-        background-color: transparent !important;
-    }
-    
-    .main .block-container {
-        background-color: white !important;
-    }
-    
-    /* Override any dark mode settings */
-    [data-theme="dark"] {
-        color-scheme: light !important;
-    }
-    
-    /* Force sidebar to light mode */
-    .css-1d391kg {
-        background-color: #f0f2f6 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
+# Custom CSS for beautiful UI
 def load_custom_css():
     st.markdown("""
     <style>
-    /* Force light theme globally */
-    html, body, [data-testid="stAppViewContainer"] {
-        background-color: white !important;
-        color: #262730 !important;
-    }
-    
-    /* Main app container */
-    .stApp {
-        background-color: white !important;
-        color: #262730 !important;
-    }
-    
-    /* Main content area */
     .main {
         padding-top: 1rem;
-        background-color: white !important;
-        color: #262730 !important;
     }
     
-    /* Block container */
-    .block-container {
-        background-color: white !important;
-        color: #262730 !important;
-    }
-    
-    /* Sidebar - force light */
-    [data-testid="stSidebar"] {
-        background-color: #f0f2f6 !important;
-    }
-    
-    [data-testid="stSidebar"] .css-1lcbmhc {
-        background-color: #f0f2f6 !important;
-    }
-    
-    /* All text elements */
-    .stMarkdown, .stText, p, span, div, h1, h2, h3, h4, h5, h6 {
-        color: #262730 !important;
-    }
-    
-    /* Input fields */
-    .stTextInput input {
-        background-color: white !important;
-        color: #262730 !important;
-        border: 1px solid #cccccc !important;
-    }
-    
-    .stSelectbox select {
-        background-color: white !important;
-        color: #262730 !important;
-        border: 1px solid #cccccc !important;
-    }
-    
-    /* Buttons */
-    .stButton > button {
-        background-color: white !important;
-        color: #262730 !important;
-        border: 1px solid #cccccc !important;
-    }
-    
-    .stButton > button:hover {
-        background-color: #f0f0f0 !important;
-        border: 1px solid #999999 !important;
-    }
-    
-    /* Metrics */
-    [data-testid="stMetricValue"] {
-        color: #262730 !important;
-    }
-    
-    /* Dataframes */
-    .stDataFrame {
-        background-color: white !important;
-    }
-    
-    /* Charts */
-    .stPlotlyChart {
-        background-color: white !important;
-    }
-    
-    /* Your weather card styles */
     .weather-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 15px;
@@ -190,6 +86,11 @@ def load_custom_css():
         margin: 5px;
         text-align: center;
         color: #333;
+    }
+    
+    .stSelectbox > div > div {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
     }
     
     .weather-icon {
@@ -240,7 +141,7 @@ def main():
     with col2:
         st.markdown("""
         <div class="location-header">
-            <h1>Weather Intelligence Hub</h1>
+            <h1>🌍 Weather Intelligence Hub</h1>
             <p>Interactive Global Weather with AI Assistant</p>
         </div>
         """, unsafe_allow_html=True)
