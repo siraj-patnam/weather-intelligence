@@ -32,6 +32,35 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
+# Force light mode
+st.markdown("""
+<style>
+    .stApp {
+        color-scheme: light !important;
+    }
+    
+    /* Force light mode colors */
+    .stApp > header {
+        background-color: transparent !important;
+    }
+    
+    .main .block-container {
+        background-color: white !important;
+    }
+    
+    /* Override any dark mode settings */
+    [data-theme="dark"] {
+        color-scheme: light !important;
+    }
+    
+    /* Force sidebar to light mode */
+    .css-1d391kg {
+        background-color: #f0f2f6 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Custom CSS for beautiful UI
 def load_custom_css():
     st.markdown("""
