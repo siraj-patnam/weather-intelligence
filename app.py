@@ -65,82 +65,67 @@ st.markdown("""
 def load_custom_css():
     st.markdown("""
     <style>
+    /* Force light theme globally */
+    html, body, [data-testid="stAppViewContainer"] {
+        background-color: white !important;
+        color: #262730 !important;
+    }
+    
+    /* Main app container */
+    .stApp {
+        background-color: white !important;
+        color: #262730 !important;
+    }
+    
+    /* Main content area */
     .main {
         padding-top: 1rem;
+        background-color: white !important;
+        color: #262730 !important;
     }
     
-    .weather-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
-        padding: 20px;
-        margin: 10px 0;
-        color: white;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(8.5px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+    /* Block container */
+    .block-container {
+        background-color: white !important;
+        color: #262730 !important;
     }
     
-    .forecast-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        border-radius: 10px;
-        padding: 15px;
-        margin: 5px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2);
+    /* Sidebar - force light */
+    [data-testid="stSidebar"] {
+        background-color: #f0f2f6 !important;
     }
     
-    .ai-chat-card {
-        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-        border-radius: 15px;
-        padding: 20px;
-        margin: 10px 0;
-        color: #333;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    [data-testid="stSidebar"] .css-1lcbmhc {
+        background-color: #f0f2f6 !important;
     }
     
-    .location-header {
-        background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-        border-radius: 10px;
-        padding: 20px;
-        margin: 10px 0;
-        text-align: center;
-        color: #333;
+    /* All text elements */
+    .stMarkdown, .stText, p, span, div, h1, h2, h3, h4, h5, h6 {
+        color: #262730 !important;
     }
     
-    .metric-card {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        border-radius: 10px;
-        padding: 15px;
-        margin: 5px;
-        text-align: center;
-        color: #333;
+    /* Input fields */
+    .stTextInput input {
+        background-color: white !important;
+        color: #262730 !important;
+        border: 1px solid #cccccc !important;
     }
     
-    .stSelectbox > div > div {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+    .stSelectbox select {
+        background-color: white !important;
+        color: #262730 !important;
+        border: 1px solid #cccccc !important;
     }
     
-    .weather-icon {
-        font-size: 4rem;
-        text-align: center;
-        margin: 10px 0;
+    /* Buttons */
+    .stButton > button {
+        background-color: white !important;
+        color: #262730 !important;
+        border: 1px solid #cccccc !important;
     }
     
-    .temperature-big {
-        font-size: 3rem;
-        font-weight: bold;
-        text-align: center;
-        margin: 10px 0;
-    }
-    
-    /* Hide Streamlit branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+    .stButton > button:hover {
+        back
 
 # Initialize services
 @st.cache_resource
