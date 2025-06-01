@@ -220,7 +220,7 @@ def main():
         export_page(services)
 
 def interactive_map_page(services):
-    """Interactive global map with weather data"""
+    """Optimized interactive global map with weather data"""
     st.markdown("## 🌍 Interactive Global Weather Map")
     st.markdown("**Click anywhere on the map to get weather data for that location!**")
     
@@ -231,11 +231,14 @@ def interactive_map_page(services):
     if 'map_zoom' not in st.session_state:
         st.session_state.map_zoom = 5
     
-    if 'first_click_processed' not in st.session_state:
-        st.session_state.first_click_processed = False
+    if 'last_map_click' not in st.session_state:
+        st.session_state.last_map_click = None
+    
+    if 'weather_loading' not in st.session_state:
+        st.session_state.weather_loading = False
     
     # Map controls
-    col1, col2, col3 = st.columns([2, 1, 1])
+    col1, col2 = st.columns([2, 1])
     
     with col1:
         location_input = st.text_input(
@@ -246,15 +249,22 @@ def interactive_map_page(services):
     with col2:
         map_style = st.selectbox("Map Style", ["OpenStreetMap", "Satellite", "Terrain"])
     
-    with col3:
-        show_weather_overlay = st.checkbox("Weather Overlay", value=True)
-    
     # Handle location search
     if location_input:
-        location_data = services['location'].get_location_data(location_input)
-        if location_data:
-            st.session_state.map_center = [location_data['lat'], location_data['lng']]
-            st.session_state.map_zoom = 10
+        with st.spinner("🔍 Searching location..."):
+            location_data = services['location'].get_location_data(location_input)
+            if location_data:
+                st.session_state.map_center = [location_data['lat'], location_data['lng']]
+                st.session_state.map_zoom = 10
+                
+                # Also get weather for searched location
+                weather_data = services['weather'].get_current_weather(
+                    location_data['lat'], location_data['lng']
+                )
+                if weather_data:
+                    st.session_state.last_weather_data = weather_data
+                    st.session_state.last_location_name = location_data['display_name']
+                    st.success(f"✅ Found: {location_data['display_name']}")
     
     # Create the map
     m = create_weather_map(
@@ -263,73 +273,241 @@ def interactive_map_page(services):
         style=map_style
     )
     
-    # Add weather markers if overlay is enabled
-    if show_weather_overlay:
-        major_cities = [
-            {"name": "New York", "lat": 40.7128, "lng": -74.0060},
-            {"name": "London", "lat": 51.5074, "lng": -0.1278},
-            {"name": "Tokyo", "lat": 35.6762, "lng": 139.6503},
-            {"name": "Paris", "lat": 48.8566, "lng": 2.3522},
-            {"name": "Sydney", "lat": -33.8688, "lng": 151.2093}
-        ]
+    # Add marker for previously clicked location (if any)
+    if ('last_weather_data' in st.session_state and 
+        'last_map_click' in st.session_state and 
+        st.session_state.last_map_click):
         
-        for city in major_cities:
-            weather = services['weather'].get_current_weather(city['lat'], city['lng'])
-            if weather:
-                add_weather_markers(m, city, weather)
+        try:
+            last_coords = st.session_state.last_map_click.split(',')
+            if len(last_coords) == 2:
+                last_lat = float(last_coords[0])
+                last_lng = float(last_coords[1])
+                
+                # Add marker at last clicked location
+                clicked_location_data = {
+                    'lat': last_lat,
+                    'lng': last_lng,
+                    'name': st.session_state.get('last_location_name', 'Selected Location')
+                }
+                
+                add_weather_markers(m, clicked_location_data, st.session_state.last_weather_data)
+        except:
+            pass  # Skip if coordinates are invalid
+    
+    # Instructions for first-time users
+    if 'last_weather_data' not in st.session_state:
+        st.info("👆 Click anywhere on the map above to get instant weather data for that location!")
     
     # Display the map
-    map_data = st_folium(m, width=700, height=500, returned_objects=["last_clicked"])
+    map_data = st_folium(m, width=700, height=500, returned_objects=["last_clicked"], key="main_map")
     
-    # Handle map clicks with better state management
+    # Handle map clicks with improved processing
     if map_data and map_data.get('last_clicked') is not None:
         clicked_lat = map_data['last_clicked']['lat']
         clicked_lng = map_data['last_clicked']['lng']
         
-        # Check if this is a new click or the same click
+        # Check if this is a new click
         current_click = f"{clicked_lat:.4f},{clicked_lng:.4f}"
         last_click = st.session_state.get('last_map_click', '')
         
         if current_click != last_click:
             # This is a new click, process it
             st.session_state.last_map_click = current_click
+            st.session_state.weather_loading = True
             
-            st.markdown(f"### 📍 Weather for Clicked Location")
-            st.markdown(f"**Coordinates:** {clicked_lat:.4f}, {clicked_lng:.4f}")
-            
-            with st.spinner("🔄 Getting weather data for selected location..."):
-                # Get weather data for clicked location
-                weather_data = services['weather'].get_current_weather(clicked_lat, clicked_lng)
-                forecast_data = services['weather'].get_forecast(clicked_lat, clicked_lng)
+            # Immediately show that we're processing the click
+            with st.container():
+                st.markdown("### 🔄 Getting weather data...")
+                progress_bar = st.progress(0)
+                status_text = st.empty()
                 
-                if weather_data:
-                    # Create location data for the clicked location
-                    clicked_location_data = {
-                        'lat': clicked_lat,
-                        'lng': clicked_lng,
-                        'display_name': f"Location ({clicked_lat:.4f}, {clicked_lng:.4f})"
-                    }
+                try:
+                    # Step 1: Get location name
+                    progress_bar.progress(25)
+                    status_text.text("🌍 Getting location information...")
                     
-                    # Save to session state for AI
-                    st.session_state.last_weather_data = weather_data
-                    st.session_state.last_location_name = clicked_location_data['display_name']
-                    st.session_state.last_forecast_data = forecast_data
+                    # Use reverse geocoding to get location name
+                    location_name = get_location_name_from_coordinates(
+                        services['location'], clicked_lat, clicked_lng
+                    )
                     
-                    # Display current weather
-                    display_current_weather(weather_data, clicked_location_data)
+                    # Step 2: Get weather data
+                    progress_bar.progress(50)
+                    status_text.text("🌤️ Fetching weather data...")
                     
-                    # Display forecast
-                    if forecast_data:
-                        st.markdown("### 📅 5-Day Forecast")
-                        display_forecast_cards(forecast_data)
+                    weather_data = services['weather'].get_current_weather(clicked_lat, clicked_lng)
                     
-                    # AI insights
-                    with st.expander("🤖 AI Weather Insights"):
-                        ai_insights = services['ai'].get_weather_insights(weather_data, forecast_data)
-                        st.markdown(ai_insights)
-                else:
-                    st.error("❌ Could not retrieve weather data for this location")
+                    # Step 3: Get forecast
+                    progress_bar.progress(75)
+                    status_text.text("📅 Getting forecast...")
+                    
+                    forecast_data = services['weather'].get_forecast(clicked_lat, clicked_lng)
+                    
+                    # Step 4: Complete
+                    progress_bar.progress(100)
+                    status_text.text("✅ Complete!")
+                    
+                    # Clear the progress indicators
+                    progress_bar.empty()
+                    status_text.empty()
+                    
+                    if weather_data:
+                        # Create location data with proper name
+                        clicked_location_data = {
+                            'lat': clicked_lat,
+                            'lng': clicked_lng,
+                            'display_name': location_name
+                        }
+                        
+                        # Save to session state for AI and future use
+                        st.session_state.last_weather_data = weather_data
+                        st.session_state.last_location_name = location_name
+                        st.session_state.last_forecast_data = forecast_data
+                        st.session_state.weather_loading = False
+                        
+                        # Display weather information
+                        display_weather_results(weather_data, forecast_data, clicked_location_data, services)
+                        
+                    else:
+                        st.error("❌ Could not retrieve weather data for this location")
+                        st.session_state.weather_loading = False
+                        
+                except Exception as e:
+                    progress_bar.empty()
+                    status_text.empty()
+                    st.error(f"❌ Error getting weather data: {str(e)}")
+                    st.session_state.weather_loading = False
+    
+    # Show existing weather data if available (for page refreshes)
+    elif ('last_weather_data' in st.session_state and 
+          'last_location_name' in st.session_state and
+          not st.session_state.get('weather_loading', False)):
+        
+        clicked_location_data = {
+            'lat': st.session_state.get('last_map_click', '0,0').split(',')[0],
+            'lng': st.session_state.get('last_map_click', '0,0').split(',')[1],
+            'display_name': st.session_state.last_location_name
+        }
+        
+        display_weather_results(
+            st.session_state.last_weather_data,
+            st.session_state.get('last_forecast_data'),
+            clicked_location_data,
+            services
+        )
 
+def get_location_name_from_coordinates(location_service, lat, lng):
+    """Get a proper location name from coordinates using reverse geocoding"""
+    try:
+        # Try to get location name using reverse geocoding
+        location_name = location_service._reverse_geocode(lat, lng)
+        
+        if location_name:
+            # Clean up the location name - take the most relevant parts
+            parts = location_name.split(',')
+            if len(parts) >= 2:
+                # Usually: "Street, City, State, Country" or similar
+                # Take the most meaningful parts
+                city_part = parts[0].strip()
+                region_part = parts[1].strip() if len(parts) > 1 else ""
+                country_part = parts[-1].strip() if len(parts) > 2 else ""
+                
+                # Build a nice display name
+                if len(parts) >= 3:
+                    return f"{city_part}, {region_part}, {country_part}"
+                elif len(parts) == 2:
+                    return f"{city_part}, {region_part}"
+                else:
+                    return city_part
+            else:
+                return location_name
+        else:
+            # Fallback to coordinates if reverse geocoding fails
+            return f"Location ({lat:.4f}, {lng:.4f})"
+            
+    except Exception as e:
+        print(f"Reverse geocoding error: {e}")
+        return f"Location ({lat:.4f}, {lng:.4f})"
+
+def display_weather_results(weather_data, forecast_data, location_data, services):
+    """Display weather results in a nice format"""
+    # Location header with proper name
+    st.markdown(f"""
+    <div class="location-header">
+        <h2>📍 {location_data['display_name']}</h2>
+        <p>Coordinates: {location_data['lat']}, {location_data['lng']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Current weather display
+    display_current_weather(weather_data, location_data)
+    
+    # Forecast display
+    if forecast_data:
+        st.markdown("### 📅 5-Day Forecast")
+        display_forecast_cards(forecast_data)
+        
+        # Temperature trend chart
+        st.markdown("### 📈 Temperature Trend")
+        create_forecast_chart(forecast_data)
+    
+    # AI insights
+    with st.expander("🤖 AI Weather Insights", expanded=False):
+        try:
+            ai_insights = services['ai'].get_weather_insights(weather_data, forecast_data)
+            st.markdown(ai_insights)
+        except Exception as e:
+            st.info("AI insights temporarily unavailable.")
+    
+    # Quick actions
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("💾 Save This Location", key="save_location"):
+            # Save weather data to database
+            success = save_weather_to_db_from_map(services, weather_data, location_data)
+            if success:
+                st.success("✅ Location saved!")
+            else:
+                st.error("❌ Failed to save")
+    
+    with col2:
+        if st.button("🤖 Ask AI About This Weather", key="ask_ai"):
+            st.info("💡 Go to the AI Assistant tab to ask questions about this weather!")
+    
+    with col3:
+        if st.button("🔄 Refresh Weather", key="refresh_weather"):
+            # Clear cached data to force refresh
+            if 'last_weather_data' in st.session_state:
+                del st.session_state.last_weather_data
+            if 'last_location_name' in st.session_state:
+                del st.session_state.last_location_name
+            st.rerun()
+
+def save_weather_to_db_from_map(services, weather_data, location_data):
+    """Save weather data from map click to database"""
+    try:
+        weather_record = {
+            'location_name': location_data['display_name'],
+            'latitude': float(location_data['lat']),
+            'longitude': float(location_data['lng']),
+            'temperature': weather_data['main']['temp'],
+            'feels_like': weather_data['main']['feels_like'],
+            'humidity': weather_data['main']['humidity'],
+            'pressure': weather_data['main']['pressure'],
+            'wind_speed': weather_data['wind']['speed'],
+            'weather_condition': weather_data['weather'][0]['main'],
+            'weather_description': weather_data['weather'][0]['description'],
+            'timestamp': datetime.now(),
+            'notes': f"Saved from map click at {datetime.now().strftime('%H:%M:%S')}"
+        }
+        
+        return services['database'].save_weather_record(weather_record)
+        
+    except Exception as e:
+        print(f"Error saving weather data: {e}")
+        return False
 def display_current_weather(weather_data, location_data):
     """Display current weather in a beautiful card format"""
     # Get location name
