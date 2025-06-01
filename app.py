@@ -107,9 +107,9 @@ def load_custom_css():
     }
     
     /* Hide Streamlit branding */
-    # #MainMenu {visibility: hidden;}
+    #MainMenu {visibility: visible;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    header {visibility: visible;}
     </style>
     """, unsafe_allow_html=True)
 
