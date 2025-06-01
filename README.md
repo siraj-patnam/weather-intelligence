@@ -5,7 +5,7 @@ An innovative weather app with **interactive global maps**, **AI-powered assista
 
 ## 🚀 Live Demo
 
-**[🔗 View Live App](https://weather-intelligence-rtxou5uhrrvoty43fexv44.streamlit.app/)**
+**[🔗 View Live App](https://weather-intelligence-a8dgmtlod6trr4tvaqvkus.streamlit.app/)**
 
 **https://weather-intelligence-a8dgmtlod6trr4tvaqvkus.streamlit.app/**
 
@@ -26,7 +26,7 @@ Streamlit • MongoDB • OpenWeather API • OpenAI • Google Maps • Plotly
 
 ## 🔑 Setup Note
 
-**For Evaluators:** Please use the [live demo](https://weather-intelligence-rtxou5uhrrvoty43fexv44.streamlit.app/) to see all features.
+**For Evaluators:** Please use the [live demo](https://weather-intelligence-a8dgmtlod6trr4tvaqvkus.streamlit.app/) to see all features.
 
 **Local Setup:** Requires API keys (OpenWeather, MongoDB, Google, OpenAI) which are excluded for security. Getting keys + setup takes ~30-45 minutes.
 
