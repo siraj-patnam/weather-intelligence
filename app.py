@@ -61,7 +61,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Custom CSS for beautiful UI
 def load_custom_css():
     st.markdown("""
     <style>
@@ -125,7 +124,93 @@ def load_custom_css():
     }
     
     .stButton > button:hover {
-        back
+        background-color: #f0f0f0 !important;
+        border: 1px solid #999999 !important;
+    }
+    
+    /* Metrics */
+    [data-testid="stMetricValue"] {
+        color: #262730 !important;
+    }
+    
+    /* Dataframes */
+    .stDataFrame {
+        background-color: white !important;
+    }
+    
+    /* Charts */
+    .stPlotlyChart {
+        background-color: white !important;
+    }
+    
+    /* Your weather card styles */
+    .weather-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 10px 0;
+        color: white;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(8.5px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    
+    .forecast-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 5px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2);
+    }
+    
+    .ai-chat-card {
+        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 10px 0;
+        color: #333;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+    
+    .location-header {
+        background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 10px 0;
+        text-align: center;
+        color: #333;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 5px;
+        text-align: center;
+        color: #333;
+    }
+    
+    .weather-icon {
+        font-size: 4rem;
+        text-align: center;
+        margin: 10px 0;
+    }
+    
+    .temperature-big {
+        font-size: 3rem;
+        font-weight: bold;
+        text-align: center;
+        margin: 10px 0;
+    }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
 
 # Initialize services
 @st.cache_resource
